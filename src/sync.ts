@@ -34,7 +34,16 @@ type Remote = {
 
 type State = { server: string; cursor: number; notes: Record<string, { version: number; hash: string }> };
 
-export type SyncReport = { pulled: number; pushed: number; deleted: number; conflicts: string[]; errors: string[] };
+export type SyncReport = {
+  pulled: number;
+  pushed: number;
+  deleted: number;
+  conflicts: string[];
+  errors: string[];
+  /** New notes Cloud did not accept because the free plan limit is reached (they stay local, retried next time). */
+  overLimit: number;
+  limitMessage?: string;
+};
 
 // ---------- credentials ----------
 
@@ -163,7 +172,7 @@ export async function syncNow(store: Store, c: Credentials): Promise<SyncReport>
 }
 
 async function run(store: Store, c: Credentials, round = 0): Promise<SyncReport> {
-  const report: SyncReport = { pulled: 0, pushed: 0, deleted: 0, conflicts: [], errors: [] };
+  const report: SyncReport = { pulled: 0, pushed: 0, deleted: 0, conflicts: [], errors: [], overLimit: 0 };
   const state = loadState(store, c.server);
 
   // Hand-written files get a real id before their first sync.
@@ -265,6 +274,9 @@ async function run(store: Store, c: Credentials, round = 0): Promise<SyncReport>
         // Deleted here but changed there: bring the server copy back. Edited on both sides: conflict copy.
         takeRemote({ ...r.note, deleted: false }, sent?.deleted ? undefined : store.get(r.id) ?? undefined);
         report.pulled++;
+      } else if (r.status === "limit") {
+        report.overLimit++;
+        report.limitMessage = r.error;
       } else {
         report.errors.push(`${r.id}: ${r.error ?? r.status}`);
       }

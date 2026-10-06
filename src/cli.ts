@@ -191,6 +191,7 @@ to AGENTS.md or your rules so the agent knows when to save and search.`);
       console.log(`Synced with ${creds.server}: ${r.pulled} pulled, ${r.pushed} pushed, ${r.deleted} deleted.`);
       for (const c of r.conflicts) console.log(`  conflict copy: ${c}`);
       for (const e of r.errors) console.log(`  error: ${e}`);
+      if (r.overLimit) console.log(`  ${r.overLimit} new note(s) stay local only: ${r.limitMessage ?? "Cloud plan limit reached"}`);
     } catch (e) {
       console.error((e as Error).message);
       process.exitCode = 1;
