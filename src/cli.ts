@@ -27,6 +27,9 @@ Usage:
   notelog recent [n]                  Latest notes
   notelog add <text>                  Save a note from the terminal
   notelog reindex                     Rebuild the search index from the files
+  notelog login [--server <url>]      Connect to notelog Cloud with a personal API token
+  notelog sync                        Sync this folder with notelog Cloud now
+  notelog logout                      Forget the Cloud token
   notelog doctor                      Check the installation
 
 Notes folder: ${defaultDir()}  (set NOTELOG_DIR to change it)`;
@@ -138,6 +141,63 @@ to AGENTS.md or your rules so the agent knows when to save and search.`);
     store.close();
     break;
   }
+  case "login": {
+    const { DEFAULT_SERVER, saveCredentials, verify, syncNow } = await import("./sync.ts");
+    const i = args.indexOf("--server");
+    const server = (i >= 0 ? args[i + 1] : process.env.NOTELOG_SERVER) || DEFAULT_SERVER;
+    const t = args.indexOf("--token");
+    let token = t >= 0 ? args[t + 1] : process.env.NOTELOG_TOKEN;
+    if (!token) {
+      console.log(`Create a token at ${server}/tokens (profile menu, API tokens), then paste it here.`);
+      const { createInterface } = await import("node:readline/promises");
+      const rl = createInterface({ input: process.stdin, output: process.stdout });
+      token = (await rl.question("Token: ")).trim();
+      rl.close();
+    }
+    if (!token?.startsWith("nl_pat_")) {
+      console.error("A notelog token starts with nl_pat_.");
+      process.exit(1);
+    }
+    const creds = { server: server.replace(/\/+$/, ""), token };
+    try {
+      const n = await verify(creds);
+      saveCredentials(creds);
+      console.log(`Connected to ${creds.server} (${n} notes in Cloud).`);
+      const store = new Store();
+      const r = await syncNow(store, creds);
+      console.log(`Synced: ${r.pulled} pulled, ${r.pushed} pushed.`);
+      store.close();
+    } catch (e) {
+      console.error((e as Error).message);
+      process.exit(1);
+    }
+    break;
+  }
+  case "logout": {
+    const { clearCredentials } = await import("./sync.ts");
+    console.log(clearCredentials() ? "Cloud token removed. Your local notes stay." : "Not logged in.");
+    break;
+  }
+  case "sync": {
+    const { loadCredentials, syncNow } = await import("./sync.ts");
+    const creds = loadCredentials();
+    if (!creds) {
+      console.error("Not connected to notelog Cloud. Run: notelog login");
+      process.exit(1);
+    }
+    const store = new Store();
+    try {
+      const r = await syncNow(store, creds);
+      console.log(`Synced with ${creds.server}: ${r.pulled} pulled, ${r.pushed} pushed, ${r.deleted} deleted.`);
+      for (const c of r.conflicts) console.log(`  conflict copy: ${c}`);
+      for (const e of r.errors) console.log(`  error: ${e}`);
+    } catch (e) {
+      console.error((e as Error).message);
+      process.exitCode = 1;
+    }
+    store.close();
+    break;
+  }
   case "doctor": {
     const ok = (b: boolean, label: string, extra = "") => console.log(`${b ? "ok  " : "FAIL"}  ${label}${extra ? `  (${extra})` : ""}`);
     const [major, minor] = process.versions.node.split(".").map(Number);
@@ -158,6 +218,19 @@ to AGENTS.md or your rules so the agent knows when to save and search.`);
     }
     const skill = path.join(os.homedir(), ".claude", "skills", "notelog", "SKILL.md");
     ok(fs.existsSync(skill), "Claude skill", fs.existsSync(skill) ? skill : "run: notelog init");
+    {
+      const { loadCredentials, verify } = await import("./sync.ts");
+      const creds = loadCredentials();
+      if (!creds) ok(true, "Cloud sync", "not connected (optional: notelog login)");
+      else {
+        try {
+          await verify(creds);
+          ok(true, "Cloud sync", creds.server);
+        } catch (e) {
+          ok(false, "Cloud sync", (e as Error).message);
+        }
+      }
+    }
     if (has("claude")) {
       const r = spawnSync("claude", ["mcp", "get", "notelog"], { encoding: "utf8" });
       ok(r.status === 0, "Claude Code MCP", r.status === 0 ? "registered" : "run: notelog init --claude");

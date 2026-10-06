@@ -213,4 +213,31 @@ export function createServer(store: Store) {
 
 export async function runStdio(store: Store) {
   await createServer(store).connect(new StdioServerTransport());
+  startAutoSync(store);
+}
+
+/**
+ * If the user ran `notelog login`, keep the folder in sync with Cloud while the MCP server runs: once at start,
+ * then every NOTELOG_SYNC_SECONDS (default 60). Errors go to stderr (the client's MCP log), never to the model.
+ */
+function startAutoSync(store: Store) {
+  const every = Number(process.env.NOTELOG_SYNC_SECONDS ?? 60);
+  if (!every) return;
+  let running = false;
+  const tick = async () => {
+    if (running) return;
+    running = true;
+    try {
+      const { loadCredentials, syncNow } = await import("./sync.ts");
+      const creds = loadCredentials();
+      if (creds) await syncNow(store, creds);
+    } catch (e) {
+      const msg = (e as Error).message;
+      if (msg !== "another sync is running") console.error(`notelog sync: ${msg}`);
+    } finally {
+      running = false;
+    }
+  };
+  void tick();
+  setInterval(tick, Math.max(every, 15) * 1000).unref();
 }

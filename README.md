@@ -5,7 +5,7 @@ Desktop save what matters and find it again in the next session. Every note is a
 `~/notelog`: readable, editable, greppable, yours.
 
 - **Your AI does the thinking.** It decides what to save, writes the title and the summary, and answers from
-  your notes. notelog stores and searches. No API keys, no cloud, no LLM calls.
+  your notes. notelog stores and searches. No API keys, no LLM calls, no cloud unless you connect one.
 - **Plain files.** One `.md` file per note with a small frontmatter. Edit them in any editor, sync them with
   git or Dropbox, delete them; notelog re-reads the folder.
 - **Fast search.** SQLite full-text index, rebuilt from the files at any time. Works well in English and
@@ -81,15 +81,25 @@ notelog search <words>              Search notes
 notelog recent [n]                  Latest notes
 notelog add <text>                  Save a note (or pipe text in)
 notelog reindex                     Rebuild the index from the files
+notelog login / sync / logout       Connect to notelog Cloud and sync
 notelog doctor                      Check the installation
 ```
 
 `NOTELOG_DIR` changes the notes folder (default `~/notelog`).
 
-## notelog Cloud
+## notelog Cloud (optional)
 
-Want the same memory in Claude and ChatGPT on the web and on your phone? [getnotelog.com](https://getnotelog.com)
-is a hosted notelog with a web view, sharing and team spaces. Syncing this folder with Cloud is on the roadmap.
+[getnotelog.com](https://getnotelog.com) is a hosted notelog: Claude and ChatGPT connectors on the web and on
+your phone, a web view, sharing and team spaces. Connect this folder to it and the same notes are everywhere:
+
+```sh
+notelog login     # paste a personal API token from getnotelog.com/tokens
+notelog sync      # also runs by itself every minute while the MCP server is running
+```
+
+Sync is two-way. If the same note was changed in two places, the first one to sync keeps the note and the other
+text is saved next to it as a `(conflict ...)` note; nothing is overwritten silently. Deleting a note deletes it
+everywhere. Team-space notes stay in Cloud. `notelog logout` disconnects; your files stay.
 
 ## Development
 

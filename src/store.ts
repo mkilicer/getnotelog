@@ -278,6 +278,14 @@ export class Store {
     return { ...c, projects };
   }
 
+  /** Every note with its full body (used by sync). */
+  all(): Note[] {
+    this.sync(true);
+    return (this.db.prepare("select * from notes order by created").all() as Record<string, unknown>[]).map((r) =>
+      this.rowToNote(r),
+    );
+  }
+
   // ---------- write ----------
 
   save(input: { content: string; title?: string; tags?: string[]; project?: string | null; source?: string | null }): Note {
@@ -318,6 +326,26 @@ export class Store {
     next.updated = new Date().toISOString();
     this.write(next);
     return next;
+  }
+
+  /**
+   * Writes a note as given (id, dates and all), e.g. one pulled from Cloud. Keeps the existing file of the same
+   * id; otherwise picks a new file name.
+   */
+  put(n: Omit<Note, "path">): Note {
+    const cur = this.get(n.id);
+    const note: Note = { ...n, path: cur?.path ?? newNotePath(this.dir, n.title, n.created) };
+    this.write(note);
+    return note;
+  }
+
+  /** Deletes the file of a note. Returns false if there was no such note. */
+  remove(idOrPath: string): boolean {
+    const cur = this.get(idOrPath);
+    if (!cur) return false;
+    fs.rmSync(path.join(this.dir, cur.path), { force: true });
+    this.unindex(cur.path);
+    return true;
   }
 
   private write(n: Note) {
