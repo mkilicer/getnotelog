@@ -83,6 +83,7 @@ async function api<T>(c: Credentials, method: "GET" | "POST", pathAndQuery: stri
     signal: AbortSignal.timeout(30_000),
   });
   if (res.status === 401) throw new Error("Cloud rejected the token (401). Run: notelog login");
+  if (res.status === 402) throw new Error(`Sync is part of notelog Cloud: ${new URL("/billing", c.server)}`);
   if (!res.ok) throw new Error(`Cloud ${method} ${pathAndQuery}: HTTP ${res.status}`);
   return (await res.json()) as T;
 }

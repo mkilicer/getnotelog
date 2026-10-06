@@ -90,7 +90,8 @@ notelog doctor                      Check the installation
 ## notelog Cloud (optional)
 
 [getnotelog.com](https://getnotelog.com) is a hosted notelog: Claude and ChatGPT connectors on the web and on
-your phone, a web view, sharing and team spaces. Connect this folder to it and the same notes are everywhere:
+your phone, a web view, notebooks, sharing and team spaces. Free up to 100 notes; with the Cloud plan ($6/month)
+connect this folder to it and the same notes are everywhere:
 
 ```sh
 notelog login     # paste a personal API token from getnotelog.com/tokens
