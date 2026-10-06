@@ -56,6 +56,9 @@ notelog: …"). Do not ask for permission each time unless the user asked you to
 - **Title:** short and specific, the words someone would search for.
 - **Body:** Markdown, the essentials first, then details. Keep the user's language.
 - **Tags:** one to three lowercase words. **Project:** the repository name for code work; omit for personal notes.
+- **Notebooks:** there are no folders. When the user says "notebook", "folder", "defter", "klasör" ("open a
+  notebook called mom and add this"), use the name as a tag (lowercase): save with `tags: ["mom"]`, list with
+  `recent_notes(tag: "mom")`, search inside it with `search_notes(..., tag: "mom")`.
 
 ## Avoid duplicates
 

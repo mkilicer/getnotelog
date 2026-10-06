@@ -37,7 +37,10 @@ const project = z
   .string()
   .optional()
   .describe("Project or area this belongs to (for coding agents: the repository name). Omit for personal notes.");
-const tags = z.array(z.string()).optional().describe("A few lowercase tags, e.g. [\"idea\", \"health\"].");
+const tags = z
+  .array(z.string())
+  .optional()
+  .describe("A few lowercase tags, e.g. [\"idea\", \"health\"]. A \"notebook\" the user names is a tag too.");
 
 export function createServer(store: Store) {
   const server = new McpServer({ name: "notelog", version: VERSION });
