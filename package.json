@@ -7,7 +7,7 @@
   "homepage": "https://getnotelog.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mkilicer/notelog.git"
+    "url": "git+https://github.com/mkilicer/getnotelog.git"
   },
   "keywords": [
     "mcp",
@@ -50,5 +50,8 @@
   "devDependencies": {
     "@types/node": "^22.20.5",
     "typescript": "^5.9.3"
+  },
+  "bugs": {
+    "url": "https://github.com/mkilicer/getnotelog/issues"
   }
 }
