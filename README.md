@@ -15,22 +15,23 @@ Desktop save what matters and find it again in the next session. Every note is a
 
 ## Install
 
-Requires Node.js 22.13 or newer.
+Requires Node.js 22.13 or newer. The npm package is `getnotelog`; once installed, the command is also
+available as `notelog`.
 
 ```sh
-npx -y notelog init --claude     # notes folder + Claude skill + registers the MCP server in Claude Code
+npx -y getnotelog init --claude  # notes folder + Claude skill + registers the MCP server in Claude Code
 ```
 
 Other clients:
 
 ```sh
-codex mcp add notelog -- npx -y notelog mcp
+codex mcp add notelog -- npx -y getnotelog mcp
 ```
 
 Cursor, Claude Desktop and any MCP client (config file):
 
 ```json
-{ "mcpServers": { "notelog": { "command": "npx", "args": ["-y", "notelog", "mcp"] } } }
+{ "mcpServers": { "notelog": { "command": "npx", "args": ["-y", "getnotelog", "mcp"] } } }
 ```
 
 For Codex and Cursor, add the instructions in [`skill/notelog/SKILL.md`](./skill/notelog/SKILL.md) to your
@@ -113,3 +114,32 @@ npm run build     # compiles to dist/
 ## License
 
 MIT
+
+---
+
+## Türkçe
+
+**notelog, yapay zekân için hafıza.** Claude Code, Codex, Cursor ve Claude Desktop'un önemli şeyleri
+kaydetmesini ve bir sonraki oturumda yeniden bulmasını sağlayan lokal bir MCP sunucusu. Her not `~/notelog`
+klasöründe düz bir Markdown dosyası: okunur, düzenlenir, aranır; senindir.
+
+- **Düşünmeyi senin yapay zekân yapar.** Neyin kaydedileceğine o karar verir, başlığı ve özeti o yazar,
+  notlarından o cevaplar. notelog saklar ve bulur. API anahtarı yok, yapay zekâ çağrısı yok.
+- **Düz dosyalar.** Her not bir `.md` dosyası. İstediğin editörde aç, git ya da Dropbox ile eşitle, sil;
+  notelog klasörü yeniden okur.
+- **Hızlı arama.** SQLite tam metin indeksi; Türkçe ve İngilizce, "arabayı nereye park etmiştim?" gibi soru
+  cümleleriyle de çalışır.
+- **Kararlar unutulmaz.** `log_decision` neyin neden kararlaştırıldığını kaydeder, `load_context` bir sonraki
+  oturumun başında geri getirir.
+
+**Kurulum** (Node.js 22.13+):
+
+```sh
+npx -y getnotelog init --claude
+```
+
+Codex için `codex mcp add notelog -- npx -y getnotelog mcp`; Cursor ve Claude Desktop için yukarıdaki MCP
+ayarı. Defter (klasör) yerine etiket kullanılır: "annem defterine ekle" dersen not `annem` etiketiyle kaydedilir.
+
+**notelog Cloud** ([getnotelog.com](https://getnotelog.com)): aynı notları web'de, telefonda ve Claude /
+ChatGPT bağlantısında görmek için `notelog login` ve `notelog sync`. 100 nota kadar ücretsiz.

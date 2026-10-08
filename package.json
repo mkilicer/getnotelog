@@ -1,7 +1,7 @@
 {
-  "name": "notelog",
+  "name": "getnotelog",
   "version": "0.1.0",
-  "description": "Memory for your AI. A local MCP server that keeps notes as plain Markdown files and finds them again.",
+  "description": "notelog: memory for your AI. A local MCP server that keeps notes as plain Markdown files and finds them again.",
   "license": "MIT",
   "author": "Muharrem Kılıçer <muharrem@rebkin.com>",
   "homepage": "https://getnotelog.com",
@@ -18,10 +18,13 @@
     "cursor",
     "memory",
     "notes",
-    "markdown"
+    "markdown",
+    "notelog",
+    "getnotelog"
   ],
   "type": "module",
   "bin": {
+    "getnotelog": "dist/cli.js",
     "notelog": "dist/cli.js"
   },
   "files": [

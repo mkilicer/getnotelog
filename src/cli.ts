@@ -35,7 +35,7 @@ Usage:
 Notes folder: ${defaultDir()}  (set NOTELOG_DIR to change it)`;
 
 const SKILL_SRC = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "skill", "notelog", "SKILL.md");
-const MCP_CMD = ["npx", "-y", "notelog", "mcp"];
+const MCP_CMD = ["npx", "-y", "getnotelog", "mcp"];
 
 const [cmd = "help", ...args] = process.argv.slice(2);
 
@@ -98,7 +98,7 @@ Connect your AI client:
   Claude Code   claude mcp add --scope user notelog -- ${MCP_CMD.join(" ")}
   Codex         codex mcp add notelog -- ${MCP_CMD.join(" ")}
   Cursor / Claude Desktop / others, in the MCP config:
-                { "mcpServers": { "notelog": { "command": "npx", "args": ["-y", "notelog", "mcp"] } } }
+                { "mcpServers": { "notelog": { "command": "npx", "args": ["-y", "getnotelog", "mcp"] } } }
 
 For Codex and Cursor, also add the instructions from ${SKILL_SRC}
 to AGENTS.md or your rules so the agent knows when to save and search.`);
